@@ -23,7 +23,9 @@ async def start_market_data():
             }
         }
 
-        await websocket.send(json.dumps(subscribe_message))
+        await websocket.send(
+            json.dumps(subscribe_message)
+        )
 
         print("Connected to Hyperliquid")
 
@@ -48,16 +50,31 @@ async def start_market_data():
 
                 side = trade.get("side")
 
-                price = float(trade.get("px", 0))
+                price = float(
+                    trade.get("px", 0)
+                )
 
-                size = float(trade.get("sz", 0))
+                size = float(
+                    trade.get("sz", 0)
+                )
 
                 market_state["price"] = price
 
                 market_state["last_trade"] = trade
 
+                market_state["recent_trades"].insert(
+                    0,
+                    trade
+                )
+
+                market_state["recent_trades"] = (
+                    market_state["recent_trades"][:20]
+                )
+
                 if side == "B":
+
                     market_state["buy_volume"] += size
 
                 elif side == "A":
+
                     market_state["sell_volume"] += size
